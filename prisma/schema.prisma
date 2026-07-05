@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model PersonalDetails {
+  id            String   @id @default(uuid())
+  firstName     String   @map("first_name")
+  middleName    String?  @map("middle_name")
+  lastName      String   @map("last_name")
+  languages     String
+  email         String   @unique
+  phoneNumber   String?  @unique @map("phone_number")
+  interests     String?
+  introduction  String?
+  whatIDo       String?  @map("what_i_do")
+  socials       Json?
+
+  education     Education[]
+  skills        Skill[]
+  cvRequests    CvRequest[]
+  projects      Project[]
+
+  @@map("personal_details")
+}
+
+enum EducationLevel {
+  PRIMARY
+  SECONDARY
+  TERTIARY
+  MASTERAL
+  DOCTORATE
+}
+
+model Education {
+  id                  String          @id @default(uuid())
+  level               EducationLevel
+  schoolName          String          @map("school_name")
+  schoolAddress       String          @map("school_address")
+  yearAttended        DateTime        @map("year_attended")
+  yearGraduated       DateTime?       @map("year_graduated")
+  course              String?
+  description         String?
+
+  personalDetailsId   String          @map("personal_details_id_fk")
+  personalDetails     PersonalDetails @relation(fields: [personalDetailsId], references: [id])
+
+  @@map("education")
+}
+
+enum SkillCategory {
+  HARD
+  SOFT
+  CORE
+}
+
+model Skill {
+  id                  String          @id @default(uuid())
+  skillName           String          @map("skill_name")
+  skillCategory       SkillCategory   @map("skill_category")
+  skillDescription    String?         @map("skill_description")
+  proficiencyLevel    Int?            @map("proficiency_level")
+
+  personalDetailsId   String          @map("personal_details_id_fk")
+  personalDetails     PersonalDetails @relation(fields: [personalDetailsId], references: [id])
+
+  @@map("skills")
+}
+
+enum CvRequestStatus {
+  SENT
+  RECEIVED
+  PENDING
+}
+
+model CvRequest {
+  id                  String           @id @default(uuid())
+  requesterFirstName  String           @map("requester_first_name")
+  requesterMiddleName String?          @map("requester_middle_name")
+  requesterLastName   String           @map("requester_last_name")
+  requesterEmail      String           @unique @map("requester_email")
+  requestStatus       CvRequestStatus  @map("request_status")
+  requestedAt         DateTime         @map("requested_at")
+  sentAt              DateTime         @map("sent_at")
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+
+  personalDetailsId   String           @map("personal_details_id_fk")
+  personalDetails     PersonalDetails  @relation(fields: [personalDetailsId], references: [id])
+
+  @@map("cv_requests")
+}
+
+enum ProjectStatus {
+  FINISHED
+  ONGOING
+  CANCELLED
+}
+
+model Project {
+  id                  String          @id @default(uuid())
+  projectTitle        String          @map("project_title")
+  projectDescription  String          @map("project_description")
+  projectImage        String?         @map("project_image")
+  projectType         String?         @map("project_type")
+  role                String?
+  technologiesUsed    String          @map("technologies_used")
+  projectLink         String?         @map("project_link")
+  repositoryLink      String?         @map("repository_link")
+  startDate           DateTime        @map("start_date")
+  endDate             DateTime?       @map("end_date")
+  createdAt           DateTime        @default(now()) @map("created_at")
+  updatedAt           DateTime        @updatedAt @map("updated_at")
+  projectStatus       ProjectStatus   @map("project_status")
+  isOngoing           Boolean         @map("is_ongoing")
+
+  personalDetailsId   String          @map("personal_details_id_fk")
+  personalDetails     PersonalDetails @relation(fields: [personalDetailsId], references: [id])
+
+  @@map("projects")
+}
