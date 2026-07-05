@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "./lib/prisma";
 
 async function getPersonalDetails(email: string) {
   const all_personal_details = await prisma.personal_details.findUnique({

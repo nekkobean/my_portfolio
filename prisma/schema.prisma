@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -12,119 +7,109 @@ datasource db {
   provider = "mysql"
 }
 
-model PersonalDetails {
+model personal_details {
   id            String   @id @default(uuid())
-  firstName     String   @map("first_name")
-  middleName    String?  @map("middle_name")
-  lastName      String   @map("last_name")
+  first_name    String
+  middle_name   String?
+  last_name     String
   languages     String
   email         String   @unique
-  phoneNumber   String?  @unique @map("phone_number")
+  phone_number  String?  @unique
   interests     String?
   introduction  String?
-  whatIDo       String?  @map("what_i_do")
+  what_i_do     String?
   socials       Json?
 
-  education     Education[]
-  skills        Skill[]
-  cvRequests    CvRequest[]
-  projects      Project[]
-
-  @@map("personal_details")
+  education     education[]
+  skills        skill[]
+  cv_requests   cv_request[]
+  projects      project[]
 }
 
-enum EducationLevel {
-  PRIMARY
-  SECONDARY
-  TERTIARY
-  MASTERAL
-  DOCTORATE
+enum education_level {
+  primary
+  secondary
+  tertiary
+  masteral
+  doctorate
 }
 
-model Education {
-  id                  String          @id @default(uuid())
-  level               EducationLevel
-  schoolName          String          @map("school_name")
-  schoolAddress       String          @map("school_address")
-  yearAttended        DateTime        @map("year_attended")
-  yearGraduated       DateTime?       @map("year_graduated")
-  course              String?
-  description         String?
+model education {
+  id                      String            @id @default(uuid())
+  level                   education_level
+  school_name             String
+  school_address          String
+  year_attended           DateTime
+  year_graduated          DateTime?
+  course                  String?
+  description             String?
 
-  personalDetailsId   String          @map("personal_details_id_fk")
-  personalDetails     PersonalDetails @relation(fields: [personalDetailsId], references: [id])
-
-  @@map("education")
+  personal_details_id_fk  String
+  personal_details        personal_details  @relation(fields: [personal_details_id_fk], references: [id])
 }
 
-enum SkillCategory {
-  HARD
-  SOFT
-  CORE
+enum skill_category {
+  hard
+  soft
+  core
 }
 
-model Skill {
-  id                  String          @id @default(uuid())
-  skillName           String          @map("skill_name")
-  skillCategory       SkillCategory   @map("skill_category")
-  skillDescription    String?         @map("skill_description")
-  proficiencyLevel    Int?            @map("proficiency_level")
+model skill {
+  id                      String            @id @default(uuid())
+  skill_name              String
+  skill_category          skill_category
+  skill_description       String?
+  proficiency_level       Int?
 
-  personalDetailsId   String          @map("personal_details_id_fk")
-  personalDetails     PersonalDetails @relation(fields: [personalDetailsId], references: [id])
-
-  @@map("skills")
+  personal_details_id_fk  String
+  personal_details        personal_details  @relation(fields: [personal_details_id_fk], references: [id])
 }
 
-enum CvRequestStatus {
-  SENT
-  RECEIVED
-  PENDING
+enum cv_request_status {
+  sent
+  received
+  pending
 }
 
-model CvRequest {
-  id                  String           @id @default(uuid())
-  requesterFirstName  String           @map("requester_first_name")
-  requesterMiddleName String?          @map("requester_middle_name")
-  requesterLastName   String           @map("requester_last_name")
-  requesterEmail      String           @unique @map("requester_email")
-  requestStatus       CvRequestStatus  @map("request_status")
-  requestedAt         DateTime         @map("requested_at")
-  sentAt              DateTime         @map("sent_at")
-  createdAt           DateTime         @default(now()) @map("created_at")
-  updatedAt           DateTime         @updatedAt @map("updated_at")
+model cv_request {
+  id                      String             @id @default(uuid())
+  requester_first_name    String
+  requester_middle_name   String?
+  requester_last_name     String
+  requester_email         String             @unique
+  request_status          cv_request_status
+  requested_at            DateTime
+  sent_at                 DateTime
+  created_at              DateTime           @default(now())
+  updated_at              DateTime           @updatedAt
 
-  personalDetailsId   String           @map("personal_details_id_fk")
-  personalDetails     PersonalDetails  @relation(fields: [personalDetailsId], references: [id])
-
-  @@map("cv_requests")
+  personal_details_id_fk  String
+  personal_details        personal_details   @relation(fields: [personal_details_id_fk], references: [id])
 }
 
-enum ProjectStatus {
-  FINISHED
-  ONGOING
-  CANCELLED
+enum project_status {
+  finished
+  ongoing
+  cancelled
 }
 
-model Project {
-  id                  String          @id @default(uuid())
-  projectTitle        String          @map("project_title")
-  projectDescription  String          @map("project_description")
-  projectImage        String?         @map("project_image")
-  projectType         String?         @map("project_type")
-  role                String?
-  technologiesUsed    String          @map("technologies_used")
-  projectLink         String?         @map("project_link")
-  repositoryLink      String?         @map("repository_link")
-  startDate           DateTime        @map("start_date")
-  endDate             DateTime?       @map("end_date")
-  createdAt           DateTime        @default(now()) @map("created_at")
-  updatedAt           DateTime        @updatedAt @map("updated_at")
-  projectStatus       ProjectStatus   @map("project_status")
-  isOngoing           Boolean         @map("is_ongoing")
+model project {
+  id                      String            @id @default(uuid())
+  project_title           String
+  project_description     String
+  project_image           String?
+  project_type            String?
+  role                    String?
+  technologies_used       String
+  project_link            String?
+  repository_link         String?
+  start_date              DateTime
+  end_date                DateTime?
+  created_at              DateTime          @default(now())
+  updated_at              DateTime          @updatedAt
+  project_status          project_status
+  is_ongoing              Boolean
 
-  personalDetailsId   String          @map("personal_details_id_fk")
-  personalDetails     PersonalDetails @relation(fields: [personalDetailsId], references: [id])
-
-  @@map("projects")
+  personal_details_id_fk  String
+  personal_details        personal_details  @relation(fields: [personal_details_id_fk], references: [id])
 }
