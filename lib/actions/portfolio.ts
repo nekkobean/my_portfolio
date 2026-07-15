@@ -1,16 +1,17 @@
-"use server";
+'use server';
 
 import { prisma } from "@/lib/prisma";
 
-export async function getProfileData(email: string) {
+
+export async function getProfileData(email: string, includeRelations: boolean = false) {
   return prisma.personal_details.findUnique({
     where: {
       email,
     },
     include: {
-      education: true,
-      skills: true,
-      projects: true,
+      education: includeRelations,
+      skills: includeRelations,
+      projects: includeRelations,
     },
   });
 }

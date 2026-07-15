@@ -8,8 +8,13 @@ import Contact from "./components/sections/Contact";
 import { getProfileData } from "@/lib/actions/portfolio";
 
 export default async function HomeContent() {
-  const profileInfo = await getProfileData("elois.dev127@gmail.com");
-  
+  const profileInfo = await getProfileData("elois.dev@gmail.com", true);
+
+  const formatDate = (value?: Date | null) =>
+    value
+      ? value.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+      : undefined;
+
   const homeData: HomeProps = {
     first_name: profileInfo?.first_name,
     middle_name: profileInfo?.middle_name,
@@ -17,29 +22,40 @@ export default async function HomeContent() {
     introduction: profileInfo?.introduction,
   };
 
- const aboutMeData = {
-    school_name: profileInfo?.education?.school_name,
-    school_address: profileInfo?.education?.school_address,
-    year_attended: profileInfo?.education?.year_attended,
-    year_graduated: profileInfo?.education?.year_graduated,
-    course: profileInfo?.education?.course,
+  const aboutMeData = {
+    education:
+      profileInfo?.education.map((item) => ({
+        school_name: item.school_name,
+        school_address: item.school_address,
+        year_attended: formatDate(item.year_attended),
+        year_graduated: formatDate(item.year_graduated),
+        course: item.course,
+      })) ?? [],
+    interests: profileInfo?.interests,
+    what_i_do: profileInfo?.what_i_do,
   };
 
   const projectData = {
-    project_title: profileInfo?.projects?.project_title,
-    project_description: profileInfo?.projects?.project_description,
-    project_type: profileInfo?.projects?.project_type,
-    role: profileInfo?.projects?.role,
-    technologies_used: profileInfo?.projects?.technologies_used,
-    start_date: profileInfo?.projects?.start_date,
-    end_date: profileInfo?.projects?.end_date,
+    projects:
+      profileInfo?.projects.map((item) => ({
+        project_title: item.project_title,
+        project_description: item.project_description,
+        project_type: item.project_type,
+        role: item.role,
+        technologies_used: item.technologies_used,
+        start_date: formatDate(item.start_date),
+        end_date: formatDate(item.end_date),
+      })) ?? [],
   };
 
   const skillData = {
-    skill_category: profileInfo?.skills?.skill_category,
-    skill_name: profileInfo?.skills?.skill_name,
-    skill_description: profileInfo?.skills?.skill_description,
-    proficiency_level: profileInfo?.skills?.proficiency_level,
+    skills:
+      profileInfo?.skills.map((item) => ({
+        skill_category: item.skill_category,
+        skill_name: item.skill_name,
+        skill_description: item.skill_description,
+        proficiency_level: item.proficiency_level,
+      })) ?? [],
   };
   // const aboutMeInfo = {
   //   about_me: profileInfo?.about_me,
