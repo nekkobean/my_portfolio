@@ -6,16 +6,7 @@ import { education as EducationInput } from "@/generated/prisma/client";
 import type { education_level } from "@/generated/prisma/enums";
 
 
-// export interface EducationInput {
-//   level: education_level;
-//   school_name: string;
-//   school_address: string;
-//   year_attended: string; // ISO date string from <input>, converted below
-//   year_graduated?: string;
-//   course?: string;
-//   description?: string;
-//   personal_details_id_fk: string;
-// }
+export type EducationCreateInput = Omit<EducationInput, "id">;
 
 export async function getEducationsByPersonalId(personalDetailsId: string) {
   return prisma.education.findMany({
@@ -24,7 +15,19 @@ export async function getEducationsByPersonalId(personalDetailsId: string) {
   });
 }
 
-export async function createEducation(data: EducationInput) {
+// export async function createEducation(data: EducationInput) {
+//   const created = await prisma.education.create({
+//     data: {
+//       ...data,
+//       year_attended: new Date(data.year_attended),
+//       year_graduated: data.year_graduated ? new Date(data.year_graduated) : undefined,
+//     },
+//   });
+//   revalidatePath("/admin");
+//   return created;
+// }
+
+export async function createEducation(data: EducationCreateInput) {
   const created = await prisma.education.create({
     data: {
       ...data,
