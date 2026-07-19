@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from "react";
@@ -22,6 +21,9 @@ import {
   updateEducation,
   type EducationCreateInput,
 } from "@/lib/actions/education-actions";
+import { educationFormSchema } from "@/lib/validations/education";
+import { getFieldErrors } from "@/lib/validations/shared";
+import FieldError from "@/lib/validations/field-error";
 
 interface EducationSectionProps {
   personalDetailsId: string | null;
@@ -76,10 +78,12 @@ export default function EducationSection({
   const [yearGraduated, setYearGraduated] = useState("");
   const [course, setCourse] = useState("");
   const [description, setDescription] = useState("");
+  const [addErrors, setAddErrors] = useState<Record<string, string>>({});
 
   // ---------- Edit (inline row) state ----------
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditForm | null>(null);
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
 
   function resetEducationForm() {
     setLevel("primary");
@@ -89,6 +93,7 @@ export default function EducationSection({
     setYearGraduated("");
     setCourse("");
     setDescription("");
+    setAddErrors({});
   }
 
   function openAddModal() {
@@ -103,7 +108,23 @@ export default function EducationSection({
   async function handleAddEducation(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!personalDetailsId) return;
-    if (!schoolName || !schoolAddress || !yearAttended) return;
+
+    const formValues = {
+      level,
+      school_name: schoolName,
+      school_address: schoolAddress,
+      year_attended: yearAttended,
+      year_graduated: yearGraduated,
+      course,
+      description,
+    };
+
+    const fieldErrors = getFieldErrors(educationFormSchema, formValues);
+    if (fieldErrors) {
+      setAddErrors(fieldErrors);
+      return;
+    }
+    setAddErrors({});
 
     setEduLoading(true);
     try {
@@ -134,6 +155,7 @@ export default function EducationSection({
       if (editingId === id) {
         setEditingId(null);
         setEditForm(null);
+        setEditErrors({});
       }
     } finally {
       setEduLoading(false);
@@ -142,6 +164,7 @@ export default function EducationSection({
 
   function startEdit(edu: EducationInput) {
     setEditingId(edu.id);
+    setEditErrors({});
     setEditForm({
       level: edu.level,
       school_name: edu.school_name,
@@ -158,6 +181,7 @@ export default function EducationSection({
   function cancelEdit() {
     setEditingId(null);
     setEditForm(null);
+    setEditErrors({});
   }
 
   function updateEditField(field: keyof EditForm, value: string) {
@@ -166,6 +190,13 @@ export default function EducationSection({
 
   async function handleSaveEdit(id: string) {
     if (!editForm || !personalDetailsId) return;
+
+    const fieldErrors = getFieldErrors(educationFormSchema, editForm);
+    if (fieldErrors) {
+      setEditErrors(fieldErrors);
+      return;
+    }
+    setEditErrors({});
 
     setEduLoading(true);
     try {
@@ -218,6 +249,7 @@ export default function EducationSection({
                           value={editForm.level}
                           onChange={(val) => updateEditField("level", val)}
                         />
+                        <FieldError message={editErrors.level} />
                       </TableCell>
                       <TableCell style={CELL_BORDER}>
                         <TextField
@@ -228,6 +260,7 @@ export default function EducationSection({
                           value={editForm.school_name}
                           onChange={(e) => updateEditField("school_name", e.target.value)}
                         />
+                        <FieldError message={editErrors.school_name} />
                       </TableCell>
                       <TableCell style={CELL_BORDER}>
                         <TextField
@@ -238,6 +271,7 @@ export default function EducationSection({
                           value={editForm.school_address}
                           onChange={(e) => updateEditField("school_address", e.target.value)}
                         />
+                        <FieldError message={editErrors.school_address} />
                       </TableCell>
                       <TableCell style={CELL_BORDER}>
                         <TextField
@@ -248,6 +282,7 @@ export default function EducationSection({
                           value={editForm.year_attended}
                           onChange={(e) => updateEditField("year_attended", e.target.value)}
                         />
+                        <FieldError message={editErrors.year_attended} />
                       </TableCell>
                       <TableCell style={CELL_BORDER}>
                         <TextField
@@ -258,6 +293,7 @@ export default function EducationSection({
                           value={editForm.year_graduated}
                           onChange={(e) => updateEditField("year_graduated", e.target.value)}
                         />
+                        <FieldError message={editErrors.year_graduated} />
                       </TableCell>
                       <TableCell style={CELL_BORDER}>
                         <TextField
@@ -268,6 +304,7 @@ export default function EducationSection({
                           value={editForm.course}
                           onChange={(e) => updateEditField("course", e.target.value)}
                         />
+                        <FieldError message={editErrors.course} />
                       </TableCell>
                       <TableCell style={CELL_BORDER}>
                         <TextField
@@ -278,6 +315,7 @@ export default function EducationSection({
                           value={editForm.description}
                           onChange={(e) => updateEditField("description", e.target.value)}
                         />
+                        <FieldError message={editErrors.description} />
                       </TableCell>
                       <TableCell style={CELL_BORDER}>
                         <div className="flex gap-2">
@@ -351,60 +389,81 @@ export default function EducationSection({
       <Modal isOpen={isAddModalOpen} onClose={closeAddModal} title="Add Education">
         <Cform onSubmit={handleAddEducation}>
           <div data-mode="light" className="flex flex-col gap-4">
-            <Select
-              label="Level"
-              options={LEVEL_OPTIONS}
-              value={level}
-              onChange={(val) => setLevel(val)}
-            />
-            <TextField
-              labelText="School Name"
-              id="schoolName"
-              type="text"
-              placeholder="Enter school name"
-              value={schoolName}
-              onChange={(e) => setSchoolName(e.target.value)}
-            />
-            <TextField
-              labelText="School Address"
-              id="schoolAddress"
-              type="text"
-              placeholder="Enter school address"
-              value={schoolAddress}
-              onChange={(e) => setSchoolAddress(e.target.value)}
-            />
-            <TextField
-              labelText="Year Attended"
-              id="yearAttended"
-              type="text"
-              placeholder="YYYY-MM-DD"
-              value={yearAttended}
-              onChange={(e) => setYearAttended(e.target.value)}
-            />
-            <TextField
-              labelText="Year Graduated (optional)"
-              id="yearGraduated"
-              type="text"
-              placeholder="YYYY-MM-DD"
-              value={yearGraduated}
-              onChange={(e) => setYearGraduated(e.target.value)}
-            />
-            <TextField
-              labelText="Course (optional)"
-              id="course"
-              type="text"
-              placeholder="Enter course"
-              value={course}
-              onChange={(e) => setCourse(e.target.value)}
-            />
-            <TextField
-              labelText="Description (optional)"
-              id="description"
-              type="text"
-              placeholder="Enter description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+            <div>
+              <Select
+                label="Level"
+                options={LEVEL_OPTIONS}
+                value={level}
+                onChange={(val) => setLevel(val)}
+              />
+              <FieldError message={addErrors.level} />
+            </div>
+            <div>
+              <TextField
+                labelText="School Name"
+                id="schoolName"
+                type="text"
+                placeholder="Enter school name"
+                value={schoolName}
+                onChange={(e) => setSchoolName(e.target.value)}
+              />
+              <FieldError message={addErrors.school_name} />
+            </div>
+            <div>
+              <TextField
+                labelText="School Address"
+                id="schoolAddress"
+                type="text"
+                placeholder="Enter school address"
+                value={schoolAddress}
+                onChange={(e) => setSchoolAddress(e.target.value)}
+              />
+              <FieldError message={addErrors.school_address} />
+            </div>
+            <div>
+              <TextField
+                labelText="Year Attended"
+                id="yearAttended"
+                type="text"
+                placeholder="YYYY-MM-DD"
+                value={yearAttended}
+                onChange={(e) => setYearAttended(e.target.value)}
+              />
+              <FieldError message={addErrors.year_attended} />
+            </div>
+            <div>
+              <TextField
+                labelText="Year Graduated (optional)"
+                id="yearGraduated"
+                type="text"
+                placeholder="YYYY-MM-DD"
+                value={yearGraduated}
+                onChange={(e) => setYearGraduated(e.target.value)}
+              />
+              <FieldError message={addErrors.year_graduated} />
+            </div>
+            <div>
+              <TextField
+                labelText="Course (optional)"
+                id="course"
+                type="text"
+                placeholder="Enter course"
+                value={course}
+                onChange={(e) => setCourse(e.target.value)}
+              />
+              <FieldError message={addErrors.course} />
+            </div>
+            <div>
+              <TextField
+                labelText="Description (optional)"
+                id="description"
+                type="text"
+                placeholder="Enter description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <FieldError message={addErrors.description} />
+            </div>
             <div data-mode="light" className="flex justify-end gap-2 mt-2">
               <Button
                 type="button"
@@ -426,199 +485,3 @@ export default function EducationSection({
     </div>
   );
 }
-
-
-// 'use client';
-
-// import { useState } from "react";
-// import { Button, Cform, Select, TextField } from "@eloisallena/web_components";
-// import { education as EducationInput } from "@/generated/prisma/client";
-// import type { education_level } from "@/generated/prisma/enums";
-// import { createEducation, deleteEducation } from "@/lib/actions/education-actions";
-
-// interface EducationSectionProps {
-//   personalDetailsId: string | null;
-//   initialEducations: EducationInput[];
-// }
-
-// const LEVEL_OPTIONS = [
-//   { key: 1, name: "primary", value: "Primary" },
-//   { key: 2, name: "secondary", value: "Secondary" },
-//   { key: 3, name: "tertiary", value: "Tertiary" },
-//   { key: 4, name: "masteral", value: "Masteral" },
-//   { key: 5, name: "doctorate", value: "Doctorate" },
-// ];
-
-// export default function EducationSection({
-//   personalDetailsId,
-//   initialEducations,
-// }: EducationSectionProps) {
-//   const [educations, setEducations] = useState<EducationInput[]>(initialEducations);
-//   const [level, setLevel] = useState("primary");
-//   const [schoolName, setSchoolName] = useState("");
-//   const [schoolAddress, setSchoolAddress] = useState("");
-//   const [yearAttended, setYearAttended] = useState("");
-//   const [yearGraduated, setYearGraduated] = useState("");
-//   const [course, setCourse] = useState("");
-//   const [description, setDescription] = useState("");
-//   const [eduLoading, setEduLoading] = useState(false);
-
-//   function resetEducationForm() {
-//     setLevel("primary");
-//     setSchoolName("");
-//     setSchoolAddress("");
-//     setYearAttended("");
-//     setYearGraduated("");
-//     setCourse("");
-//     setDescription("");
-//   }
-
-//   async function handleAddEducation(e: React.SubmitEvent<HTMLFormElement>) {
-//     e.preventDefault();
-//     if (!personalDetailsId) return;
-//     if (!schoolName || !schoolAddress || !yearAttended) return;
-
-//     setEduLoading(true);
-//     try {
-//       const payload: EducationInput = {
-//         id: "",
-//         level: level as education_level,
-//         school_name: schoolName,
-//         school_address: schoolAddress,
-//         year_attended: new Date(yearAttended),
-//         year_graduated: yearGraduated ? new Date(yearGraduated) : null,
-//         course: course || null,
-//         description: description || null,
-//         personal_details_id_fk: personalDetailsId,
-//       };
-//       const created = await createEducation(payload);
-//       setEducations((prev) => [created, ...prev]);
-//       resetEducationForm();
-//     } finally {
-//       setEduLoading(false);
-//     }
-//   }
-
-//   async function handleDeleteEducation(id: string) {
-//     setEduLoading(true);
-//     try {
-//       await deleteEducation(id);
-//       setEducations((prev) => prev.filter((edu) => edu.id !== id));
-//     } finally {
-//       setEduLoading(false);
-//     }
-//   }
-
-//   return (
-//     <div data-mode="light" className="flex flex-col gap-6 bg-white">
-//       <h2 className="text-lg font-semibold text-black">Education</h2>
-
-//       {educations.map((edu) => (
-//         <div key={edu.id} data-mode="light" className="grid grid-cols-1 gap-6 md:grid-cols-3">
-//           <div
-//             data-mode="light"
-//             className="flex flex-col gap-2 bg-white shadow-md rounded-lg border border-gray-200 px-8 pt-6 pb-8"
-//           >
-//             <p className="font-medium text-black">
-//               {edu.school_name} — <span className="capitalize">{edu.level}</span>
-//             </p>
-//             <p className="text-sm text-gray-500">
-//               {edu.school_address} · {new Date(edu.year_attended).getFullYear()}
-//               {edu.year_graduated ? ` – ${new Date(edu.year_graduated).getFullYear()}` : ""}
-//             </p>
-//             {edu.course && <p className="text-sm text-black">{edu.course}</p>}
-//             {edu.description && <p className="text-sm text-gray-500">{edu.description}</p>}
-//             <div className="flex justify-end mt-2">
-//               <Button
-//                 type="button"
-//                 variant="delete"
-//                 label="Delete"
-//                 onClick={() => handleDeleteEducation(edu.id)}
-//                 disabled={eduLoading}
-//               />
-//             </div>
-//           </div>
-//         </div>
-//       ))}
-
-//       {personalDetailsId && (
-//         <div data-mode="light" className="grid grid-cols-1 gap-6 md:grid-cols-3">
-//           <Cform onSubmit={handleAddEducation}>
-//             <div
-//               data-mode="light"
-//               className="flex flex-col gap-4 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-//             >
-//               <Select
-//                 label="Level"
-//                 options={LEVEL_OPTIONS}
-//                 value={level}
-//                 onChange={(val) => setLevel(val)}
-//               />
-//               <TextField
-//                 labelText="School Name"
-//                 id="schoolName"
-//                 type="text"
-//                 placeholder="Enter school name"
-//                 value={schoolName}
-//                 onChange={(e) => setSchoolName(e.target.value)}
-//               />
-//               <TextField
-//                 labelText="School Address"
-//                 id="schoolAddress"
-//                 type="text"
-//                 placeholder="Enter school address"
-//                 value={schoolAddress}
-//                 onChange={(e) => setSchoolAddress(e.target.value)}
-//               />
-//               <TextField
-//                 labelText="Year Attended"
-//                 id="yearAttended"
-//                 type="text"
-//                 placeholder="YYYY-MM-DD"
-//                 value={yearAttended}
-//                 onChange={(e) => setYearAttended(e.target.value)}
-//               />
-//               <TextField
-//                 labelText="Year Graduated (optional)"
-//                 id="yearGraduated"
-//                 type="text"
-//                 placeholder="YYYY-MM-DD"
-//                 value={yearGraduated}
-//                 onChange={(e) => setYearGraduated(e.target.value)}
-//               />
-//               <TextField
-//                 labelText="Course (optional)"
-//                 id="course"
-//                 type="text"
-//                 placeholder="Enter course"
-//                 value={course}
-//                 onChange={(e) => setCourse(e.target.value)}
-//               />
-//               <TextField
-//                 labelText="Description (optional)"
-//                 id="description"
-//                 type="text"
-//                 placeholder="Enter description"
-//                 value={description}
-//                 onChange={(e) => setDescription(e.target.value)}
-//               />
-//               <div data-mode="light" className="flex justify-end gap-2 mt-2">
-//                 <Button
-//                   type="submit"
-//                   variant="primary"
-//                   label={eduLoading ? "Adding..." : "Add Education"}
-//                   disabled={eduLoading}
-//                 />
-//               </div>
-//             </div>
-//           </Cform>
-//         </div>
-//       )}
-//       {!personalDetailsId && (
-//         <p className="text-sm text-gray-500">
-//           Save your personal details first before adding education entries.
-//         </p>
-//       )}
-//     </div>
-//   );
-// }

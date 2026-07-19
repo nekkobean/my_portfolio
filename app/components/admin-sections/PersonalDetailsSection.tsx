@@ -9,6 +9,9 @@ import {
   updatePersonalDetails,
   deletePersonalDetails,
 } from "@/lib/actions/admin-actions";
+import { personalDetailsFormSchema } from "@/lib/validations/personal-details";
+import { getFieldErrors } from "@/lib/validations/shared";
+import FieldError from "@/lib/validations/field-error";
 
 interface PersonalDetailsSectionProps {
   initialData: PersonalDetails | null;
@@ -23,11 +26,30 @@ export default function PersonalDetailsSection({ initialData }: PersonalDetailsS
   const [phoneNumber, setPhoneNumber] = useState(initialData?.phone_number ?? "");
   const [whatIDo, setWhatIDo] = useState(initialData?.what_i_do ?? "");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isExisting = !!initialData;
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    const formValues = {
+      first_name: firstName,
+      middle_name: middleName,
+      last_name: lastName,
+      languages,
+      email,
+      phone_number: phoneNumber,
+      what_i_do: whatIDo,
+    };
+
+    const fieldErrors = getFieldErrors(personalDetailsFormSchema, formValues);
+    if (fieldErrors) {
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
+
     setLoading(true);
     try {
       const payload: PersonalDetails = {
@@ -70,62 +92,90 @@ export default function PersonalDetailsSection({ initialData }: PersonalDetailsS
           data-mode="light"
           className="flex flex-col gap-4 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
         >
-          <TextField
-            labelText="First Name"
-            id="firstName"
-            type="text"
-            placeholder="Enter your first name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-          <TextField
-            labelText="Middle Name"
-            id="middleName"
-            type="text"
-            placeholder="Enter your middle name"
-            value={middleName}
-            onChange={(e) => setMiddleName(e.target.value)}
-          />
-          <TextField
-            labelText="Last Name"
-            id="lastName"
-            type="text"
-            placeholder="Enter your last name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
-          <TextField
-            labelText="Languages"
-            id="languages"
-            type="text"
-            placeholder="Enter languages you know"
-            value={languages}
-            onChange={(e) => setLanguages(e.target.value)}
-          />
-          <TextField
-            labelText="Email"
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <TextField
-            labelText="Phone Number"
-            id="phoneNumber"
-            type="text"
-            placeholder="Enter your phone number"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-          />
-          <TextField
-            labelText="What I Do"
-            id="whatIDo"
-            type="text"
-            placeholder="Enter what you do"
-            value={whatIDo}
-            onChange={(e) => setWhatIDo(e.target.value)}
-          />
+          <div>
+            <TextField
+              labelText="First Name"
+              id="firstName"
+              type="text"
+              placeholder="Enter your first name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+            <FieldError message={errors.first_name} />
+          </div>
+
+          <div>
+            <TextField
+              labelText="Middle Name"
+              id="middleName"
+              type="text"
+              placeholder="Enter your middle name"
+              value={middleName}
+              onChange={(e) => setMiddleName(e.target.value)}
+            />
+            <FieldError message={errors.middle_name} />
+          </div>
+
+          <div>
+            <TextField
+              labelText="Last Name"
+              id="lastName"
+              type="text"
+              placeholder="Enter your last name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+            <FieldError message={errors.last_name} />
+          </div>
+
+          <div>
+            <TextField
+              labelText="Languages"
+              id="languages"
+              type="text"
+              placeholder="Enter languages you know"
+              value={languages}
+              onChange={(e) => setLanguages(e.target.value)}
+            />
+            <FieldError message={errors.languages} />
+          </div>
+
+          <div>
+            <TextField
+              labelText="Email"
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <FieldError message={errors.email} />
+          </div>
+
+          <div>
+            <TextField
+              labelText="Phone Number"
+              id="phoneNumber"
+              type="text"
+              placeholder="Enter your phone number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+            <FieldError message={errors.phone_number} />
+          </div>
+
+          <div>
+            <TextField
+              labelText="What I Do"
+              id="whatIDo"
+              type="text"
+              placeholder="Enter what you do"
+              value={whatIDo}
+              onChange={(e) => setWhatIDo(e.target.value)}
+            />
+            <FieldError message={errors.what_i_do} />
+          </div>
+
           <div data-mode="light" className="flex justify-end gap-2 mt-2">
             <Button
               type="submit"
