@@ -25,6 +25,7 @@ import {
 import { projectFormSchema } from "@/lib/validations/project";
 import { getFieldErrors } from "@/lib/validations/shared";
 import FieldError from "@/lib/validations/field-error";
+import { resolveProjectImage } from "@/lib/utils/image"; // ADDED
 
 interface ProjectSectionProps {
   personalDetailsId: string | null;
@@ -38,14 +39,15 @@ const PROJECT_STATUS_OPTIONS = [
 ];
 
 const COLUMNS: TableHeadCell[] = [
-  { key: 1, name: "project_title", value: "Title" },
-  { key: 2, name: "project_status", value: "Status" },
-  { key: 3, name: "technologies_used", value: "Technologies" },
-  { key: 4, name: "role", value: "Role" },
-  { key: 5, name: "start_date", value: "Start Date" },
-  { key: 6, name: "end_date", value: "End Date" },
-  { key: 7, name: "links", value: "Links" },
-  { key: 8, name: "actions", value: "Actions" },
+  { key: 1, name: "project_image", value: "Image" },
+  { key: 2, name: "project_title", value: "Title" },
+  { key: 3, name: "project_status", value: "Status" },
+  { key: 4, name: "technologies_used", value: "Technologies" },
+  { key: 5, name: "role", value: "Role" },
+  { key: 6, name: "start_date", value: "Start Date" },
+  { key: 7, name: "end_date", value: "End Date" },
+  { key: 8, name: "links", value: "Links" },
+  { key: 9, name: "actions", value: "Actions" },
 ];
 
 const CELL_BORDER = "border-b border-light-gray";
@@ -258,7 +260,7 @@ export default function ProjectSection({ personalDetailsId, initialProjects }: P
       </div>
 
       <div className="w-full overflow-x-auto mb-10">
-        <div className="min-w-[1200px]">
+        <div className="min-w-[1400px]">
           <Ctable maxRows={19}>
             <TableHead rowData={COLUMNS} />
             <TableBody>
@@ -266,6 +268,17 @@ export default function ProjectSection({ personalDetailsId, initialProjects }: P
                 if (editingId === project.id && editForm) {
                   return (
                     <tr key={project.id} className={ROW_CLASS}>
+                      <TableCell style={CELL_BORDER}>
+                        <TextField
+                          labelText="Image URL"
+                          id={`edit-image-${project.id}`}
+                          type="text"
+                          placeholder="Image URL"
+                          value={editForm.project_image}
+                          onChange={(e) => updateEditField("project_image", e.target.value)}
+                        />
+                        <FieldError message={editErrors.project_image} />
+                      </TableCell>
                       <TableCell style={CELL_BORDER}>
                         <TextField
                           labelText="Title"
@@ -380,6 +393,14 @@ export default function ProjectSection({ personalDetailsId, initialProjects }: P
 
                 return (
                   <tr key={project.id} className={ROW_CLASS}>
+                    <TableCell style={CELL_BORDER}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={resolveProjectImage(project.project_image)} // CHANGED
+                        alt={project.project_title}
+                        className="h-12 w-12 rounded object-cover"
+                      />
+                    </TableCell>
                     <TableCell style={CELL_BORDER}>{project.project_title}</TableCell>
                     <TableCell style={CELL_BORDER}>
                       <span className="capitalize">{project.project_status}</span>

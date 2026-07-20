@@ -4,11 +4,13 @@ import {
   CardImage,
   Section,
 } from "@eloisallena/web_components";
+import { resolveProjectImage } from "@/lib/utils/image"; // ADDED
 
 export interface ProjectItem {
   project_title?: string;
   project_description?: string;
   project_type?: string | null;
+  project_image?: string | null;
   role?: string | null;
   technologies_used?: string;
   start_date?: string;
@@ -30,7 +32,7 @@ export default function Projects({ info }: { info: ProjectsProps }) {
             >
               <CardImage
                 alt={project.project_title ?? "Project"}
-                image="/elogo.png"
+                image={resolveProjectImage(project.project_image)} // CHANGED
               />
               <CardContent
                 title={project.project_title}

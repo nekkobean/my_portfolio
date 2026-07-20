@@ -41,6 +41,7 @@ export default async function HomeContent() {
         project_title: item.project_title,
         project_description: item.project_description,
         project_type: item.project_type,
+        project_image: item.project_image,
         role: item.role,
         technologies_used: item.technologies_used,
         start_date: formatDate(item.start_date),
