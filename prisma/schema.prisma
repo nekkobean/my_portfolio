@@ -60,7 +60,8 @@ model skill {
   skill_category          skill_category
   skill_description       String?
   proficiency_level       Int?
-
+  skill_image             String?
+  
   personal_details_id_fk  String
   personal_details        personal_details  @relation(fields: [personal_details_id_fk], references: [id])
 }

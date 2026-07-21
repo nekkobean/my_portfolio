@@ -6,6 +6,7 @@ import Projects from "./components/sections/Projects";
 import Skills from "./components/sections/Skills";
 import Contact from "./components/sections/Contact";
 import { getProfileData } from "@/lib/actions/portfolio";
+import Header from "./components/sections/Header";
 
 export default async function HomeContent() {
   const profileInfo = await getProfileData("elois.dev@gmail.com", true);
@@ -44,6 +45,8 @@ export default async function HomeContent() {
         project_image: item.project_image,
         role: item.role,
         technologies_used: item.technologies_used,
+        project_link: item.project_link, // ADDED
+        repository_link: item.repository_link, // ADDED
         start_date: formatDate(item.start_date),
         end_date: formatDate(item.end_date),
       })) ?? [],
@@ -55,6 +58,7 @@ export default async function HomeContent() {
         skill_category: item.skill_category,
         skill_name: item.skill_name,
         skill_description: item.skill_description,
+        skill_image: item.skill_image,
         proficiency_level: item.proficiency_level,
       })) ?? [],
   };
@@ -65,6 +69,7 @@ export default async function HomeContent() {
 
   return (
     <div className="bg-gray-100">
+      <Header/>
       <Home info={homeData} />
       <AboutMe info={aboutMeData} />
       <Projects info={projectData} />
@@ -72,4 +77,4 @@ export default async function HomeContent() {
       <Contact />
     </div>
   );
-}
+};

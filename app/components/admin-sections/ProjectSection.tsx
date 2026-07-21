@@ -260,7 +260,7 @@ export default function ProjectSection({ personalDetailsId, initialProjects }: P
       </div>
 
       <div className="w-full overflow-x-auto mb-10">
-        <div className="min-w-[1400px]">
+        <div className="min-w-350">
           <Ctable maxRows={19}>
             <TableHead rowData={COLUMNS} />
             <TableBody>

@@ -234,7 +234,7 @@ export default function EducationSection({
       </div>
 
       <div className="w-full overflow-x-auto mb-10">
-        <div className="min-w-[1100px]">
+        <div className="min-w-275">
           <Ctable maxRows={19}>
             <TableHead rowData={COLUMNS} />
             <TableBody>

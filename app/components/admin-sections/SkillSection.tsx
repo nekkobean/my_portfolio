@@ -37,11 +37,12 @@ const SKILL_CATEGORY_OPTIONS = [
 ];
 
 const COLUMNS: TableHeadCell[] = [
-  { key: 1, name: "skill_name", value: "Skill Name" },
-  { key: 2, name: "skill_category", value: "Category" },
-  { key: 3, name: "proficiency_level", value: "Proficiency" },
-  { key: 4, name: "skill_description", value: "Description" },
-  { key: 5, name: "actions", value: "Actions" },
+  { key: 1, name: "skill_image", value: "Image" },
+  { key: 2, name: "skill_name", value: "Skill Name" },
+  { key: 3, name: "skill_category", value: "Category" },
+  { key: 4, name: "proficiency_level", value: "Proficiency" },
+  { key: 5, name: "skill_description", value: "Description" },
+  { key: 6, name: "actions", value: "Actions" },
 ];
 
 const CELL_BORDER = "border-b border-light-gray";
@@ -52,6 +53,7 @@ interface EditForm {
   skill_category: string;
   skill_description: string;
   proficiency_level: string;
+  skill_image: string;
 }
 
 export default function SkillSection({ personalDetailsId, initialSkills }: SkillSectionProps) {
@@ -63,6 +65,7 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
   const [skillCategory, setSkillCategory] = useState("hard");
   const [skillDescription, setSkillDescription] = useState("");
   const [proficiencyLevel, setProficiencyLevel] = useState("");
+  const [skillImage, setSkillImage] = useState("");
   const [addErrors, setAddErrors] = useState<Record<string, string>>({});
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -74,6 +77,7 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
     setSkillCategory("hard");
     setSkillDescription("");
     setProficiencyLevel("");
+    setSkillImage("");
     setAddErrors({});
   }
 
@@ -111,6 +115,7 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
         skill_category: skillCategory as skill_category,
         skill_description: skillDescription || null,
         proficiency_level: proficiencyLevel ? Number(proficiencyLevel) : null,
+        skill_image: skillImage || null,
         personal_details_id_fk: personalDetailsId,
       };
       const created = await createSkill(payload);
@@ -145,6 +150,7 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
       skill_category: skill.skill_category,
       skill_description: skill.skill_description ?? "",
       proficiency_level: skill.proficiency_level != null ? String(skill.proficiency_level) : "",
+      skill_image: skill.skill_image ?? "",
     });
   }
 
@@ -176,6 +182,7 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
         skill_category: editForm.skill_category as skill_category,
         skill_description: editForm.skill_description || null,
         proficiency_level: editForm.proficiency_level ? Number(editForm.proficiency_level) : null,
+        skill_image: editForm.skill_image || null,
         personal_details_id_fk: personalDetailsId,
       };
       const updated = await updateSkill(id, payload);
@@ -196,7 +203,7 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
       </div>
 
       <div className="w-full overflow-x-auto mb-10">
-        <div className="min-w-[900px]">
+        <div className="min-w-225">
           <Ctable maxRows={19}>
             <TableHead rowData={COLUMNS} />
             <TableBody>
@@ -204,6 +211,16 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
                 if (editingId === skill.id && editForm) {
                   return (
                     <tr key={skill.id} className={ROW_CLASS}>
+                      <TableCell style={CELL_BORDER}>
+                        <TextField
+                          labelText="Image URL"
+                          id={`edit-skill-image-${skill.id}`}
+                          type="text"
+                          placeholder="Image URL"
+                          value={editForm.skill_image}
+                          onChange={(e) => updateEditField("skill_image", e.target.value)}
+                        />
+                      </TableCell>
                       <TableCell style={CELL_BORDER}>
                         <TextField
                           labelText="Skill Name"
@@ -270,6 +287,14 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
 
                 return (
                   <tr key={skill.id} className={ROW_CLASS}>
+                    <TableCell style={CELL_BORDER}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={skill.skill_image || "/elogo.png"}
+                        alt={skill.skill_name}
+                        className="h-12 w-12 rounded object-cover"
+                      />
+                    </TableCell>
                     <TableCell style={CELL_BORDER}>{skill.skill_name}</TableCell>
                     <TableCell style={CELL_BORDER}>
                       <span className="capitalize">{skill.skill_category}</span>
@@ -313,6 +338,16 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
       <Modal isOpen={isAddModalOpen} onClose={closeAddModal} title="Add Skill">
         <Cform onSubmit={handleAddSkill}>
           <div data-mode="light" className="flex flex-col gap-4">
+            <div>
+              <TextField
+                labelText="Image URL (optional)"
+                id="skillImage"
+                type="text"
+                placeholder="Enter image URL"
+                value={skillImage}
+                onChange={(e) => setSkillImage(e.target.value)}
+              />
+            </div>
             <div>
               <TextField
                 labelText="Skill Name"
