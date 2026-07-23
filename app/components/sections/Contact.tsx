@@ -8,18 +8,19 @@ import {
   TextField,
 } from "@eloisallena/web_components";
 
-// export interface ContactProps {
-//   requester_email?: string;
-// }
-
 export default function Contact() {
   return (
-    <Section id="contact" title="Contact Me" style="bg-white text-black">
-      <div data-mode="light" className="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <Section
+      id="contact"
+      title="Contact Me"
+      style="bg-white text-black"
+      sectionTitleClassName="text-black text-2xl md:text-3xl lg:text-4xl"
+    >
+      <div data-mode="light" className="flex justify-center">
         <Cform>
           <div
             data-mode="light"
-            className="flex flex-col gap-4 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+            className="flex flex-col gap-4 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-xl"
           >
             <TextField
               labelText="Name"
@@ -47,7 +48,7 @@ export default function Contact() {
               label="Accept Terms & Conditions"
               helperText="You must accept the terms and conditions to proceed."
             />
-            <div data-mode="light" className="flex justify-end gap-2 mt-2">
+            <div data-mode="light" className="flex justify-end gap-3 mt-8">
               <Button variant="primary" label="Submit" />
               <Button variant="secondary" label="Cancel" />
             </div>
