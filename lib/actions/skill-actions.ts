@@ -5,13 +5,7 @@ import { revalidatePath } from "next/cache";
 import { skill as SkillInput } from "@/generated/prisma/client";
 import type { skill_category } from "@/generated/prisma/enums";
 
-// export interface SkillInput {
-//   skill_name: string;
-//   skill_category: skill_category;
-//   skill_description?: string;
-//   proficiency_level?: number;
-//   personal_details_id_fk: string;
-// }
+export type SkillCreateInput = Omit<SkillInput, "id">;
 
 export async function getSkillsByPersonalId(personalDetailsId: string) {
   return prisma.skill.findMany({
@@ -20,7 +14,7 @@ export async function getSkillsByPersonalId(personalDetailsId: string) {
   });
 }
 
-export async function createSkill(data: SkillInput) {
+export async function createSkill(data: SkillCreateInput) {
   const created = await prisma.skill.create({ data });
   revalidatePath("/admin");
   return created;
