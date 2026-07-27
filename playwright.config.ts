@@ -4,14 +4,32 @@ import { defineConfig, devices } from '@playwright/test';
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-import dotenv from 'dotenv';
-dotenv.config();
+//import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
+const configFilePath = fileURLToPath(import.meta.url);
+const configDirectory = path.dirname(configFilePath);
+const envPath = path.join(configDirectory, ".env");
+
+const envResult = dotenv.config({
+  path: envPath,
+});
+
+if (envResult.error) {
+  throw new Error(
+    `[playwright.config] Failed to load environment file at ${envPath}: ${envResult.error.message}`,
+  );
+}
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
   testDir: './e2e',
+  // Warms up Next.js dev-mode route compilation before any test runs -
+  // see e2e/global-setup.ts for why this was needed.
+  globalSetup: './e2e/global-setup.ts',
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -73,7 +91,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   // webServer: {
-  //   command: 'npm run start',
+  //   command: 'npm run dev',
   //   url: 'http://localhost:3000',
   //   reuseExistingServer: !process.env.CI,
   // },

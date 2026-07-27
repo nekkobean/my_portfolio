@@ -206,27 +206,24 @@ test.describe("Projects Section", () => {
     await page.goto("/");
   });
 
-  test("contains project cards", async ({ page }) => {
-    const projects = page.locator("#projects");
+ test("contains project cards", async ({ page }) => {
+  const projects = page.locator("#projects");
 
-    await expect(
-      projects.getByRole("heading", {
-        name: "Projects",
-      })
-    ).toBeVisible();
+  const sectionHeading = projects.getByRole("heading", { name: "Projects" });
+  await expect(sectionHeading).toBeVisible();
 
-    await expect(
-      projects.getByRole("heading", {
-        name: "Web Components Library",
-      })
-    ).toBeVisible();
+  // Project titles are DB-driven (fetched via getProfileData in
+  // HomeContent) and can be renamed/removed independently of this test,
+  // so we don't assert on specific hardcoded titles - just that at
+  // least one project card actually rendered with a title, distinct
+  // from the section's own "Projects" heading.
+  const projectHeadings = projects
+    .getByRole("heading")
+    .filter({ hasNotText: /^Projects$/ });
 
-    await expect(
-      projects.getByRole("heading", {
-        name: "Portfolio Website",
-      })
-    ).toBeVisible();
-  });
+  await expect(projectHeadings.first()).toBeVisible();
+  expect(await projectHeadings.count()).toBeGreaterThan(0);
+});
 
 test("each project has action buttons matching their data", async ({ page }) => {
   const projects = page.locator("#projects");
