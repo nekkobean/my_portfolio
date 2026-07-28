@@ -8,22 +8,22 @@ datasource db {
 }
 
 model personal_details {
-  id            String   @id @default(uuid())
-  first_name    String
-  middle_name   String?
-  last_name     String
-  languages     String
-  email         String   @unique
-  phone_number  String?  @unique
-  interests     String?
-  introduction  String?
-  what_i_do     String?
-  socials       Json?
+  id           String  @id @default(uuid())
+  first_name   String
+  middle_name  String?
+  last_name    String
+  languages    String
+  email        String  @unique
+  phone_number String? @unique
+  interests    String?
+  introduction String?
+  what_i_do    String?
+  socials      Json?
 
-  education     education[]
-  skills        skill[]
-  cv_requests   cv_request[]
-  projects      project[]
+  education   education[]
+  skills      skill[]
+  cv_requests cv_request[]
+  projects    project[]
 }
 
 enum education_level {
@@ -35,17 +35,17 @@ enum education_level {
 }
 
 model education {
-  id                      String            @id @default(uuid())
-  level                   education_level
-  school_name             String
-  school_address          String
-  year_attended           DateTime
-  year_graduated          DateTime?
-  course                  String?
-  description             String?
+  id             String          @id @default(uuid())
+  level          education_level
+  school_name    String
+  school_address String
+  year_attended  DateTime
+  year_graduated DateTime?
+  course         String?
+  description    String?
 
-  personal_details_id_fk  String
-  personal_details        personal_details  @relation(fields: [personal_details_id_fk], references: [id])
+  personal_details_id_fk String
+  personal_details       personal_details @relation(fields: [personal_details_id_fk], references: [id])
 }
 
 enum skill_category {
@@ -55,15 +55,15 @@ enum skill_category {
 }
 
 model skill {
-  id                      String            @id @default(uuid())
-  skill_name              String
-  skill_category          skill_category
-  skill_description       String?
-  proficiency_level       Int?
-  skill_image             String?
-  
-  personal_details_id_fk  String
-  personal_details        personal_details  @relation(fields: [personal_details_id_fk], references: [id])
+  id                String         @id @default(uuid())
+  skill_name        String
+  skill_category    skill_category
+  skill_description String?
+  proficiency_level Int?
+  skill_image       String?
+
+  personal_details_id_fk String
+  personal_details       personal_details @relation(fields: [personal_details_id_fk], references: [id])
 }
 
 enum cv_request_status {
@@ -73,19 +73,18 @@ enum cv_request_status {
 }
 
 model cv_request {
-  id                      String             @id @default(uuid())
-  requester_first_name    String
-  requester_middle_name   String?
-  requester_last_name     String
-  requester_email         String             @unique
-  request_status          cv_request_status
-  requested_at            DateTime
-  sent_at                 DateTime
-  created_at              DateTime           @default(now())
-  updated_at              DateTime           @updatedAt
+  id              String            @id @default(uuid())
+  requester_name  String
+  requester_email String
+  reason          String
+  request_status  cv_request_status @default(pending)
+  requested_at    DateTime          @default(now())
+  sent_at         DateTime?
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
 
-  personal_details_id_fk  String
-  personal_details        personal_details   @relation(fields: [personal_details_id_fk], references: [id])
+  personal_details_id_fk String
+  personal_details       personal_details @relation(fields: [personal_details_id_fk], references: [id])
 }
 
 enum project_status {
@@ -95,22 +94,22 @@ enum project_status {
 }
 
 model project {
-  id                      String            @id @default(uuid())
-  project_title           String
-  project_description     String
-  project_image           String?
-  project_type            String?
-  role                    String?
-  technologies_used       String
-  project_link            String?
-  repository_link         String?
-  start_date              DateTime
-  end_date                DateTime?
-  created_at              DateTime          @default(now())
-  updated_at              DateTime          @updatedAt
-  project_status          project_status
-  is_ongoing              Boolean
+  id                  String         @id @default(uuid())
+  project_title       String
+  project_description String
+  project_image       String?
+  project_type        String?
+  role                String?
+  technologies_used   String
+  project_link        String?
+  repository_link     String?
+  start_date          DateTime
+  end_date            DateTime?
+  created_at          DateTime       @default(now())
+  updated_at          DateTime       @updatedAt
+  project_status      project_status
+  is_ongoing          Boolean
 
-  personal_details_id_fk  String
-  personal_details        personal_details  @relation(fields: [personal_details_id_fk], references: [id])
+  personal_details_id_fk String
+  personal_details       personal_details @relation(fields: [personal_details_id_fk], references: [id])
 }

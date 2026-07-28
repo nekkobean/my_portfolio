@@ -9,115 +9,205 @@ const NAV_LINKS = [
 ];
 
 test.describe("Navbar", () => {
-  test.use({ viewport: { width: 1280, height: 800 } }); // ensure we're above Tailwind's `md` (768px) breakpoint
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({
+      width: 1280,
+      height: 800,
+    });
 
-  test("desktop navbar displays all navigation links", async ({ page }) => {
     await page.goto("/");
+  });
+
+  test("desktop navbar displays all navigation links", async ({
+    page,
+  }) => {
     const nav = page.getByTestId("navbar-desktop");
 
     for (const link of NAV_LINKS) {
       const navLink = nav.locator(`a[href="${link.href}"]`);
+
       await expect(navLink).toBeVisible();
       await expect(navLink).toHaveText(link.label);
     }
   });
 
-  test("desktop navigation links point to the correct sections", async ({ page }) => {
-    await page.goto("/");
+  test("desktop navigation links point to the correct sections", async ({
+    page,
+  }) => {
     const nav = page.getByTestId("navbar-desktop");
 
     for (const link of NAV_LINKS) {
-      await nav.locator(`a[href="${link.href}"]`).click();
+      await nav
+        .locator(`a[href="${link.href}"]`)
+        .click();
+
       await expect(page.locator(link.href)).toBeVisible();
     }
   });
-  
 });
-test.describe("Mobile Drawer", () => {
-  test.use({ viewport: { width: 375, height: 812 } });
 
+test.describe("Mobile Drawer", () => {
   test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({
+      width: 375,
+      height: 812,
+    });
+
     await page.goto("/");
-    const wrapper = page.getByTestId("navbar-drawer-wrapper");
-    await wrapper.getByRole("button").first().click();
+
+    const wrapper = page.getByTestId(
+      "navbar-drawer-wrapper",
+    );
+
+    await wrapper
+      .getByRole("button")
+      .first()
+      .click();
   });
 
-
-  test("drawer displays all navigation links", async ({ page }) => {
-    const drawer = page.getByTestId("navbar-drawer-wrapper").locator("aside");
+  test("drawer displays all navigation links", async ({
+    page,
+  }) => {
+    const drawer = page
+      .getByTestId("navbar-drawer-wrapper")
+      .locator("aside");
 
     for (const link of NAV_LINKS) {
-      const navLink = drawer.locator(`a[href="${link.href}"]`);
+      const navLink = drawer.locator(
+        `a[href="${link.href}"]`,
+      );
+
       await expect(navLink).toBeVisible();
       await expect(navLink).toHaveText(link.label);
     }
   });
 
-test("drawer navigation links point to the correct sections", async ({ page }) => {
-  const wrapper = page.getByTestId("navbar-drawer-wrapper");
-  const drawer = wrapper.locator("aside");
+  test("drawer navigation links point to the correct sections", async ({
+    page,
+  }) => {
+    const wrapper = page.getByTestId(
+      "navbar-drawer-wrapper",
+    );
 
-  for (let i = 0; i < NAV_LINKS.length; i++) {
-    const link = NAV_LINKS[i];
+    const drawer = wrapper.locator("aside");
 
-    if (i > 0) {
-      await wrapper.getByRole("button").first().click();
+    for (
+      let index = 0;
+      index < NAV_LINKS.length;
+      index++
+    ) {
+      const link = NAV_LINKS[index];
+
+      if (index > 0) {
+        await wrapper
+          .getByRole("button")
+          .first()
+          .click();
+      }
+
+      await expect(drawer).toHaveCSS(
+        "transform",
+        "none",
+      );
+
+      await drawer
+        .locator(`a[href="${link.href}"]`)
+        .click();
+
+      await expect(
+        page.locator(link.href),
+      ).toBeVisible();
     }
+  });
 
-    // translate-x-0 is an identity transform — CSS spec reports these as
-    // "none", not as a matrix() string. Only non-zero transforms (like
-    // -translate-x-full when closed) compute to an actual matrix.
-    await expect(drawer).toHaveCSS("transform", "none");
-    await drawer.locator(`a[href="${link.href}"]`).click();
-    await expect(page.locator(link.href)).toBeVisible();
-  }
-});
+  test("close button closes the drawer", async ({
+    page,
+  }) => {
+    const wrapper = page.getByTestId(
+      "navbar-drawer-wrapper",
+    );
 
-  test("close (X) button closes the drawer", async ({ page }) => {
-    const wrapper = page.getByTestId("navbar-drawer-wrapper");
-    const overlay = page.locator(".fixed.inset-0.z-40");
+    const overlay = page.locator(
+      ".fixed.inset-0.z-40",
+    );
 
     await expect(overlay).toBeVisible();
-    await wrapper.getByRole("button").nth(1).click();
+
+    await wrapper
+      .getByRole("button")
+      .nth(1)
+      .click();
+
     await expect(overlay).toBeHidden();
   });
 
-  test("clicking the overlay closes the drawer", async ({ page }) => {
-    const overlay = page.locator(".fixed.inset-0.z-40");
+  test("clicking the overlay closes the drawer", async ({
+    page,
+  }) => {
+    const overlay = page.locator(
+      ".fixed.inset-0.z-40",
+    );
+
     await expect(overlay).toBeVisible();
 
-    // click outside the drawer's width (w-65 ≈ 260px, left-aligned) so it lands
-    // on the overlay, not the <aside> sitting on top of it (aside is z-50, overlay z-40)
-    await overlay.click({ position: { x: 320, y: 400 } });
+    await overlay.click({
+      position: {
+        x: 320,
+        y: 400,
+      },
+    });
 
     await expect(overlay).toBeHidden();
   });
 });
 
 test.describe("Home Section", () => {
-  test("contains all home components", async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto("/");
+  });
+
+  test("contains all home components", async ({
+    page,
+  }) => {
     const home = page.locator("#home");
 
+    await expect(home).toBeVisible();
+
     await expect(
-      home.getByRole("heading", { name: "Dashboard" })
+      home.getByRole("heading", {
+        name: "Dashboard",
+      }),
     ).toBeVisible();
 
     await expect(
-      home.getByRole("heading", { level: 1 })
+      home.getByRole("heading", {
+        level: 1,
+      }),
     ).toContainText(/Hello, I'm/i);
 
-    await expect(home.locator("img")).toBeVisible();
+    const profileImage = home.locator("img");
+
+    await expect(profileImage).toBeVisible();
+
+    await expect(profileImage).toHaveAttribute(
+      "src",
+      "/portid.png",
+    );
 
     await expect(
-      home.getByRole("button", { name: "Download Cv" })
+      home.getByRole("button", {
+        name: "Request CV",
+      }),
     ).toBeVisible();
   });
 
-  test("opens the download CV modal", async ({ page }) => {
-    await page.goto("/");
+  test("opens the request CV modal", async ({
+    page,
+  }) => {
     await page
-      .getByRole("button", { name: "Download Cv" })
+      .getByRole("button", {
+        name: "Request CV",
+      })
       .click();
 
     const modal = page.getByRole("dialog");
@@ -125,28 +215,198 @@ test.describe("Home Section", () => {
     await expect(modal).toBeVisible();
 
     await expect(
-      modal.getByRole("heading", { name: "Fill Out Form" })
+      modal.getByRole("heading", {
+        name: "Request My CV",
+      }),
     ).toBeVisible();
 
     await expect(
-      modal.getByPlaceholder("Enter your name")
+      modal.getByText(
+        /fill out this form to receive my latest CV through email/i,
+      ),
     ).toBeVisible();
 
     await expect(
-      modal.getByPlaceholder("Enter your email")
+      modal.getByLabel("Name"),
     ).toBeVisible();
 
     await expect(
-      modal.getByPlaceholder("Please state your reason")
+      modal.getByLabel("Email"),
     ).toBeVisible();
 
     await expect(
-      modal.getByRole("button", { name: "Submit" })
+      modal.getByLabel("Reason"),
     ).toBeVisible();
 
     await expect(
-      modal.getByRole("button", { name: "Cancel" })
+      modal.getByRole("button", {
+        name: "Submit",
+      }),
     ).toBeVisible();
+
+    await expect(
+      modal.getByRole("button", {
+        name: "Cancel",
+      }),
+    ).toBeVisible();
+  });
+
+  test("allows the user to fill out the CV request form", async ({
+    page,
+  }) => {
+    await page
+      .getByRole("button", {
+        name: "Request CV",
+      })
+      .click();
+
+    const modal = page.getByRole("dialog");
+
+    const nameInput = modal.getByLabel("Name");
+    const emailInput = modal.getByLabel("Email");
+    const reasonInput = modal.getByLabel("Reason");
+
+    await nameInput.fill("Test Requester");
+
+    await emailInput.fill(
+      "requester@example.com",
+    );
+
+    await reasonInput.fill(
+      "I would like to review your experience.",
+    );
+
+    await expect(nameInput).toHaveValue(
+      "Test Requester",
+    );
+
+    await expect(emailInput).toHaveValue(
+      "requester@example.com",
+    );
+
+    await expect(reasonInput).toHaveValue(
+      "I would like to review your experience.",
+    );
+  });
+
+  test("shows validation errors for an empty CV request form", async ({
+    page,
+  }) => {
+    await page
+      .getByRole("button", {
+        name: "Request CV",
+      })
+      .click();
+
+    const modal = page.getByRole("dialog");
+
+    await modal
+      .getByRole("button", {
+        name: "Submit",
+      })
+      .click();
+
+    await expect(
+      modal.getByText(
+        "Please correct the highlighted fields.",
+      ),
+    ).toBeVisible();
+
+    await expect(
+      modal.getByText(
+        "Name must contain at least 2 characters.",
+      ),
+    ).toBeVisible();
+
+    await expect(
+      modal.getByText("Email is required."),
+    ).toBeVisible();
+
+    await expect(
+      modal.getByText(
+        "Please provide a short reason.",
+      ),
+    ).toBeVisible();
+  });
+
+  test("shows an error for an invalid email address", async ({
+    page,
+  }) => {
+    await page
+      .getByRole("button", {
+        name: "Request CV",
+      })
+      .click();
+
+    const modal = page.getByRole("dialog");
+
+    await modal
+      .getByLabel("Name")
+      .fill("Test User");
+
+    await modal
+      .getByLabel("Email")
+      .fill("invalid-email");
+
+    await modal
+      .getByLabel("Reason")
+      .fill("Recruitment inquiry");
+
+    await modal
+      .getByRole("button", {
+        name: "Submit",
+      })
+      .click();
+
+    await expect(
+      modal.getByText(
+        "Enter a valid email address.",
+      ),
+    ).toBeVisible();
+  });
+
+  test("cancel button closes the CV request modal", async ({
+    page,
+  }) => {
+    await page
+      .getByRole("button", {
+        name: "Request CV",
+      })
+      .click();
+
+    const modal = page.getByRole("dialog");
+
+    await expect(modal).toBeVisible();
+
+    await modal
+      .getByRole("button", {
+        name: "Cancel",
+      })
+      .click();
+
+    await expect(modal).toBeHidden();
+  });
+
+  test("modal close button closes the CV request modal", async ({
+    page,
+  }) => {
+    await page
+      .getByRole("button", {
+        name: "Request CV",
+      })
+      .click();
+
+    const modal = page.getByRole("dialog");
+
+    await expect(modal).toBeVisible();
+
+    await modal
+      .getByRole("button", {
+        name: "Close modal",
+      })
+      .click();
+
+    await expect(modal).toBeHidden();
   });
 });
 
@@ -155,48 +415,86 @@ test.describe("About Me Section", () => {
     await page.goto("/");
   });
 
-  test("contains all cards", async ({ page }) => {
+  test("contains all cards", async ({
+    page,
+  }) => {
     const about = page.locator("#about-me");
 
+    await expect(about).toBeVisible();
+
     await expect(
-      about.getByRole("heading", { name: "About Me" })
+      about.getByRole("heading", {
+        name: "About Me",
+      }),
     ).toBeVisible();
 
     await expect(
-      about.getByRole("heading", { name: "Education" })
+      about.getByRole("heading", {
+        name: "Education",
+      }),
     ).toBeVisible();
 
     await expect(
-      about.getByRole("heading", { name: "What I Do" })
+      about.getByRole("heading", {
+        name: "What I Do",
+      }),
     ).toBeVisible();
 
     await expect(
-      about.getByRole("heading", { name: "Interests" })
+      about.getByRole("heading", {
+        name: "Interests",
+      }),
     ).toBeVisible();
   });
 
- test("shows education information", async ({ page }) => {
-  const about = page.locator("#about-me");
+  test("shows education information", async ({
+    page,
+  }) => {
+    const about = page.locator("#about-me");
 
-  const educationHeading = about.getByRole("heading", { name: "Education" });
-  const educationText = educationHeading.locator("xpath=following::p[1]");
+    const educationHeading = about.getByRole(
+      "heading",
+      {
+        name: "Education",
+      },
+    );
 
-  await expect(educationText).toBeVisible();
-});
+    const educationText =
+      educationHeading.locator(
+        "xpath=following::p[1]",
+      );
 
-test("shows what i do description", async ({ page }) => {
-  const about = page.locator("#about-me");
+    await expect(educationText).toBeVisible();
+    await expect(educationText).not.toBeEmpty();
+  });
 
-  const whatIDoHeading = about.getByRole("heading", { name: "What I Do" });
-  const whatIDoText = whatIDoHeading.locator("xpath=following::p[1]");
+  test("shows what I do description", async ({
+    page,
+  }) => {
+    const about = page.locator("#about-me");
 
-  await expect(whatIDoText).not.toBeEmpty();
-});
-  test("shows interests description", async ({ page }) => {
+    const whatIDoHeading = about.getByRole(
+      "heading",
+      {
+        name: "What I Do",
+      },
+    );
+
+    const whatIDoText = whatIDoHeading.locator(
+      "xpath=following::p[1]",
+    );
+
+    await expect(whatIDoText).toBeVisible();
+    await expect(whatIDoText).not.toBeEmpty();
+  });
+
+  test("shows interests description", async ({
+    page,
+  }) => {
     const about = page.locator("#about-me");
 
     await expect(
-      about.getByText(/Interested in/i)
+      about.getByText(/Interested in/i),
     ).toBeVisible();
   });
 });
@@ -206,80 +504,149 @@ test.describe("Projects Section", () => {
     await page.goto("/");
   });
 
- test("contains project cards", async ({ page }) => {
-  const projects = page.locator("#projects");
+  test("contains project cards", async ({
+    page,
+  }) => {
+    const projects = page.locator("#projects");
 
-  const sectionHeading = projects.getByRole("heading", { name: "Projects" });
-  await expect(sectionHeading).toBeVisible();
+    await expect(projects).toBeVisible();
 
-  // Project titles are DB-driven (fetched via getProfileData in
-  // HomeContent) and can be renamed/removed independently of this test,
-  // so we don't assert on specific hardcoded titles - just that at
-  // least one project card actually rendered with a title, distinct
-  // from the section's own "Projects" heading.
-  const projectHeadings = projects
-    .getByRole("heading")
-    .filter({ hasNotText: /^Projects$/ });
+    await expect(
+      projects.getByRole("heading", {
+        name: "Projects",
+      }),
+    ).toBeVisible();
 
-  await expect(projectHeadings.first()).toBeVisible();
-  expect(await projectHeadings.count()).toBeGreaterThan(0);
-});
+    const projectHeadings = projects
+      .getByRole("heading")
+      .filter({
+        hasNotText: /^Projects$/,
+      });
 
-test("each project has action buttons matching their data", async ({ page }) => {
-  const projects = page.locator("#projects");
+    await expect(
+      projectHeadings.first(),
+    ).toBeVisible();
 
-  // Every project card should show a "Repo" button only if it has a repo URL,
-  // and "Live Site" only if it has a live URL — both fields are optional in the DB,
-  // so exact counts depend on current data rather than being fixed at 2.
-  const projectCards = projects.locator(":scope > div, :scope > article"); // adjust selector to match your actual card wrapper
-  const cardCount = await projectCards.count();
-
-  expect(cardCount).toBeGreaterThan(0);
-
-  for (let i = 0; i < cardCount; i++) {
-    const card = projectCards.nth(i);
-    const repoButton = card.getByRole("button", { name: "Repo" });
-    const liveButton = card.getByRole("button", { name: "Live Site" });
-
-    // At minimum, each card should render without erroring — presence of
-    // buttons is conditional, so we just confirm the card itself is intact
-    await expect(card).toBeVisible();
-
-    // If a button is present, it should be usable — this doesn't assert
-    // exact counts, just that whichever buttons DO render are functional
-    if (await repoButton.count() > 0) {
-      await expect(repoButton).toBeVisible();
-    }
-    if (await liveButton.count() > 0) {
-      await expect(liveButton).toBeVisible();
-    }
-  }
-});
-
-  test("opens live site", async ({ page }) => {
-    const popupPromise = page.waitForEvent("popup");
-
-    await page
-      .getByRole("button", { name: "Live Site" })
-      .first()
-      .click();
-
-    const popup = await popupPromise;
-
-    await expect(popup).toHaveURL(/http/);
+    expect(
+      await projectHeadings.count(),
+    ).toBeGreaterThan(0);
   });
 
-  test("opens repository", async ({ page }) => {
-    const popupPromise = page.waitForEvent("popup");
+  test("project action buttons are usable when available", async ({
+    page,
+  }) => {
+    const projects = page.locator("#projects");
 
-    await page
-      .getByRole("button", { name: "Repo" })
-      .first()
-      .click();
+    const repoButtons = projects.getByRole(
+      "button",
+      {
+        name: "Repo",
+      },
+    );
+
+    const liveButtons = projects.getByRole(
+      "button",
+      {
+        name: "Live Site",
+      },
+    );
+
+    const repoCount = await repoButtons.count();
+    const liveCount = await liveButtons.count();
+
+    expect(
+      repoCount + liveCount,
+    ).toBeGreaterThan(0);
+
+    for (
+      let index = 0;
+      index < repoCount;
+      index++
+    ) {
+      await expect(
+        repoButtons.nth(index),
+      ).toBeVisible();
+
+      await expect(
+        repoButtons.nth(index),
+      ).toBeEnabled();
+    }
+
+    for (
+      let index = 0;
+      index < liveCount;
+      index++
+    ) {
+      await expect(
+        liveButtons.nth(index),
+      ).toBeVisible();
+
+      await expect(
+        liveButtons.nth(index),
+      ).toBeEnabled();
+    }
+  });
+
+  test("opens live site when available", async ({
+    page,
+  }) => {
+    const projects = page.locator("#projects");
+
+    const liveButtons = projects.getByRole(
+      "button",
+      {
+        name: "Live Site",
+      },
+    );
+
+    test.skip(
+      (await liveButtons.count()) === 0,
+      "No project currently has a live-site link.",
+    );
+
+    const popupPromise =
+      page.waitForEvent("popup");
+
+    await liveButtons.first().click();
 
     const popup = await popupPromise;
 
-    await expect(popup).toHaveURL(/github/i);
+    await popup.waitForLoadState();
+
+    await expect(popup).toHaveURL(
+      /^https?:\/\//,
+    );
+  });
+
+  test("opens repository when available", async ({
+    page,
+  }) => {
+    const projects = page.locator("#projects");
+
+    const repoButtons = projects.getByRole(
+      "button",
+      {
+        name: "Repo",
+      },
+    );
+
+    test.skip(
+      (await repoButtons.count()) === 0,
+      "No project currently has a repository link.",
+    );
+
+    const popupPromise =
+      page.waitForEvent("popup");
+
+    await repoButtons.first().click();
+
+    const popup = await popupPromise;
+
+    await popup.waitForLoadState();
+
+    await expect(popup).toHaveURL(
+      /github\.com/i,
+    );
   });
 });
 
@@ -288,35 +655,70 @@ test.describe("Skills Section", () => {
     await page.goto("/");
   });
 
-  test("contains hard skills", async ({ page }) => {
+  test("contains hard skills", async ({
+    page,
+  }) => {
     const skills = page.locator("#skills");
+
+    await expect(skills).toBeVisible();
 
     await expect(
       skills.getByRole("heading", {
         name: "Hard Skills",
-      })
+      }),
     ).toBeVisible();
 
-    await expect(skills.getByText("Next.js")).toBeVisible();
-    await expect(skills.getByText("React.js")).toBeVisible();
-    await expect(skills.getByText("TypeScript")).toBeVisible();
-    await expect(skills.getByText("Mysql")).toBeVisible();
+    await expect(
+      skills.getByText("Next.js", {
+        exact: true,
+      }),
+    ).toBeVisible();
+
+    await expect(
+      skills.getByText("React.js", {
+        exact: true,
+      }),
+    ).toBeVisible();
+
+    await expect(
+      skills.getByText("TypeScript", {
+        exact: true,
+      }),
+    ).toBeVisible();
+
+    await expect(
+      skills.getByText("Mysql", {
+        exact: true,
+      }),
+    ).toBeVisible();
   });
 
-  test("contains soft skills", async ({ page }) => {
+  test("contains soft skills", async ({
+    page,
+  }) => {
     const skills = page.locator("#skills");
 
     await expect(
       skills.getByRole("heading", {
         name: "Soft Skills",
-      })
+      }),
     ).toBeVisible();
 
-    await expect(skills.getByText("Problem Solving")).toBeVisible();
-    await expect(skills.getByText("Communication")).toBeVisible();
-    await expect(skills.getByText("Leadership")).toBeVisible();
-    await expect(skills.getByText("Adaptability")).toBeVisible();
-    await expect(skills.getByText("Time Management")).toBeVisible();
+    const softSkills = [
+      "Problem Solving",
+      "Communication",
+      "Leadership",
+      "Adaptability",
+      "Time Management",
+    ];
+
+    for (const skill of softSkills) {
+      await expect(
+        skills.getByText(skill, {
+          exact: true,
+        }),
+      ).toBeVisible();
+    }
   });
 });
 
@@ -325,74 +727,119 @@ test.describe("Contact Section", () => {
     await page.goto("/");
   });
 
-  test("contains all form components", async ({ page }) => {
+  test("contains all form components", async ({
+    page,
+  }) => {
     const contact = page.locator("#contact");
+
+    await expect(contact).toBeVisible();
 
     await expect(
       contact.getByRole("heading", {
         name: "Contact Me",
-      })
+      }),
     ).toBeVisible();
 
     await expect(
       contact.getByRole("textbox", {
         name: "Name",
-      })
+      }),
     ).toBeVisible();
 
     await expect(
       contact.getByRole("textbox", {
         name: "Email",
-      })
+      }),
     ).toBeVisible();
 
-    await expect(contact.getByRole("combobox")).toBeVisible();
+    await expect(
+      contact.getByRole("combobox"),
+    ).toBeVisible();
 
     await expect(
       contact.getByRole("checkbox", {
         name: "Accept Terms & Conditions",
-      })
+      }),
     ).toBeVisible();
 
     await expect(
       contact.getByRole("button", {
         name: "Submit",
-      })
+      }),
     ).toBeVisible();
 
     await expect(
       contact.getByRole("button", {
         name: "Cancel",
-      })
+      }),
     ).toBeVisible();
   });
 
-  test("allows the user to fill out the form", async ({ page }) => {
+  test("allows the user to fill out the form", async ({
+    page,
+  }) => {
     const contact = page.locator("#contact");
 
-    const name = contact.getByRole("textbox", { name: "Name" });
-    const email = contact.getByRole("textbox", { name: "Email" });
-    const reason = contact.getByRole("combobox");
-    const checkbox = contact.getByRole("checkbox", {
-      name: "Accept Terms & Conditions",
+    const name = contact.getByRole(
+      "textbox",
+      {
+        name: "Name",
+      },
+    );
+
+    const email = contact.getByRole(
+      "textbox",
+      {
+        name: "Email",
+      },
+    );
+
+    const reason =
+      contact.getByRole("combobox");
+
+    const checkbox = contact.getByRole(
+      "checkbox",
+      {
+        name: "Accept Terms & Conditions",
+      },
+    );
+
+    await name.fill("Test User");
+
+    await email.fill(
+      "test@example.com",
+    );
+
+    await reason.selectOption({
+      label: "Inquiry",
     });
 
-    await name.pressSequentially("Test User");
-    await email.pressSequentially("test@example.com");
-    await reason.selectOption({ label: "Inquiry" });
     await checkbox.check();
 
-    await expect(name).toHaveValue("Test User");
-    await expect(email).toHaveValue("test@example.com");
-    await expect(reason).toHaveValue("option1");
+    await expect(name).toHaveValue(
+      "Test User",
+    );
+
+    await expect(email).toHaveValue(
+      "test@example.com",
+    );
+
+    await expect(reason).toHaveValue(
+      "option1",
+    );
+
     await expect(checkbox).toBeChecked();
   });
 
-  test("cancel button is visible", async ({ page }) => {
+  test("cancel button is visible", async ({
+    page,
+  }) => {
+    const contact = page.locator("#contact");
+
     await expect(
-      page.getByRole("button", {
+      contact.getByRole("button", {
         name: "Cancel",
-      })
+      }),
     ).toBeVisible();
   });
 });
