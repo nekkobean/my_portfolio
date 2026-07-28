@@ -61,3 +61,6 @@ Thumbs.db
 # Certificates and private keys
 *.pem
 *.key
+
+# Railway CLI local project link
+.railway/
