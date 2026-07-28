@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from "react";
@@ -83,7 +84,11 @@ export default function EducationSection({
   // ---------- Edit (inline row) state ----------
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditForm | null>(null);
-  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+
+    const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+
+  // ---------- Delete confirmation state ----------
+  const [deleteTarget, setDeleteTarget] = useState<EducationInput | null>(null);
 
   function resetEducationForm() {
     setLevel("primary");
@@ -108,7 +113,8 @@ export default function EducationSection({
   async function handleAddEducation(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!personalDetailsId) return;
-
+    if (!schoolName || !schoolAddress || !yearAttended) return;
+ 
     const formValues = {
       level,
       school_name: schoolName,
@@ -147,7 +153,20 @@ export default function EducationSection({
     }
   }
 
-  async function handleDeleteEducation(id: string) {
+  // ---------- Delete flow: request -> confirm -> execute ----------
+
+  function requestDelete(edu: EducationInput) {
+    setDeleteTarget(edu);
+  }
+
+  function cancelDelete() {
+    setDeleteTarget(null);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    const id = deleteTarget.id;
+
     setEduLoading(true);
     try {
       await deleteEducation(id);
@@ -159,6 +178,7 @@ export default function EducationSection({
       }
     } finally {
       setEduLoading(false);
+      setDeleteTarget(null);
     }
   }
 
@@ -234,7 +254,7 @@ export default function EducationSection({
       </div>
 
       <div className="w-full overflow-x-auto mb-10">
-        <div className="min-w-275">
+        <div className="min-w-[1100px]">
           <Ctable maxRows={19}>
             <TableHead rowData={COLUMNS} />
             <TableBody>
@@ -367,7 +387,7 @@ export default function EducationSection({
                           type="button"
                           variant="delete"
                           label="Delete"
-                          onClick={() => handleDeleteEducation(edu.id)}
+                          onClick={() => requestDelete(edu)}
                           disabled={eduLoading}
                         />
                       </div>
@@ -389,80 +409,80 @@ export default function EducationSection({
       <Modal isOpen={isAddModalOpen} onClose={closeAddModal} title="Add Education">
         <Cform onSubmit={handleAddEducation}>
           <div data-mode="light" className="flex flex-col gap-4">
-            <div>
-              <Select
-                label="Level"
-                options={LEVEL_OPTIONS}
-                value={level}
-                onChange={(val) => setLevel(val)}
-              />
-              <FieldError message={addErrors.level} />
+             <div>
+               <Select
+              label="Level"
+              options={LEVEL_OPTIONS}
+              value={level}
+              onChange={(val) => setLevel(val)}
+            />
+             <FieldError message={addErrors.level} />
             </div>
             <div>
-              <TextField
-                labelText="School Name"
-                id="schoolName"
-                type="text"
-                placeholder="Enter school name"
-                value={schoolName}
-                onChange={(e) => setSchoolName(e.target.value)}
-              />
-              <FieldError message={addErrors.school_name} />
+            <TextField
+              labelText="School Name"
+              id="schoolName"
+              type="text"
+              placeholder="Enter school name"
+              value={schoolName}
+              onChange={(e) => setSchoolName(e.target.value)}
+            />
+               <FieldError message={addErrors.school_name} />
             </div>
             <div>
-              <TextField
-                labelText="School Address"
-                id="schoolAddress"
-                type="text"
-                placeholder="Enter school address"
-                value={schoolAddress}
-                onChange={(e) => setSchoolAddress(e.target.value)}
-              />
-              <FieldError message={addErrors.school_address} />
+            <TextField
+              labelText="School Address"
+              id="schoolAddress"
+              type="text"
+              placeholder="Enter school address"
+              value={schoolAddress}
+              onChange={(e) => setSchoolAddress(e.target.value)}
+            />
+            <FieldError message={addErrors.school_address} />
             </div>
             <div>
-              <TextField
-                labelText="Year Attended"
-                id="yearAttended"
-                type="text"
-                placeholder="YYYY-MM-DD"
-                value={yearAttended}
-                onChange={(e) => setYearAttended(e.target.value)}
-              />
-              <FieldError message={addErrors.year_attended} />
+            <TextField
+              labelText="Year Attended"
+              id="yearAttended"
+              type="text"
+              placeholder="YYYY-MM-DD"
+              value={yearAttended}
+              onChange={(e) => setYearAttended(e.target.value)}
+            />
+             <FieldError message={addErrors.year_attended} />
             </div>
             <div>
-              <TextField
-                labelText="Year Graduated (optional)"
-                id="yearGraduated"
-                type="text"
-                placeholder="YYYY-MM-DD"
-                value={yearGraduated}
-                onChange={(e) => setYearGraduated(e.target.value)}
-              />
+            <TextField
+              labelText="Year Graduated (optional)"
+              id="yearGraduated"
+              type="text"
+              placeholder="YYYY-MM-DD"
+              value={yearGraduated}
+              onChange={(e) => setYearGraduated(e.target.value)}
+            />
               <FieldError message={addErrors.year_graduated} />
             </div>
             <div>
-              <TextField
-                labelText="Course (optional)"
-                id="course"
-                type="text"
-                placeholder="Enter course"
-                value={course}
-                onChange={(e) => setCourse(e.target.value)}
-              />
-              <FieldError message={addErrors.course} />
+            <TextField
+              labelText="Course (optional)"
+              id="course"
+              type="text"
+              placeholder="Enter course"
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
+            />
+            <FieldError message={addErrors.course} />
             </div>
             <div>
-              <TextField
-                labelText="Description (optional)"
-                id="description"
-                type="text"
-                placeholder="Enter description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-              <FieldError message={addErrors.description} />
+            <TextField
+              labelText="Description (optional)"
+              id="description"
+              type="text"
+              placeholder="Enter description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+             <FieldError message={addErrors.description} />
             </div>
             <div data-mode="light" className="flex justify-end gap-2 mt-2">
               <Button
@@ -481,6 +501,30 @@ export default function EducationSection({
             </div>
           </div>
         </Cform>
+      </Modal>
+
+      <Modal isOpen={deleteTarget !== null} onClose={cancelDelete} title="Delete Education">
+        <p className="text-sm text-gray-600 mb-6">
+          Are you sure you want to delete{" "}
+          <span className="font-semibold text-black">{deleteTarget?.school_name}</span>? This
+          action cannot be undone.
+        </p>
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            label="Cancel"
+            onClick={cancelDelete}
+            disabled={eduLoading}
+          />
+          <Button
+            type="button"
+            variant="delete"
+            label={eduLoading ? "Deleting..." : "Delete"}
+            onClick={confirmDelete}
+            disabled={eduLoading}
+          />
+        </div>
       </Modal>
     </div>
   );

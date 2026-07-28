@@ -13,17 +13,19 @@ const NAV_ITEMS = [
 export default function Header() {
   return (
     <div className="sticky top-0 z-50">
-      <Cheader style="bg-transparent border-none shadow-none backdrop-blur-sm">
-        <Icon
-          logo="/elogo.png"
-          title=""
-          titleClassName="hidden"
-        />
-        <NavBar
-          navBar={NAV_ITEMS}
-          navLabelClassName="text-black hover:text-orange"
-        />
-        <Drawer navDrawer={NAV_ITEMS} />
+      <Cheader style="bg-transparent border-none shadow-none">
+        <Icon logo="/elogo.png" title="" titleClassName="hidden" />
+
+        <div data-testid="navbar-desktop">
+          <NavBar
+            navBar={NAV_ITEMS}
+            navLabelClassName="text-black hover:text-orange"
+          />
+        </div>
+
+        <div data-testid="navbar-drawer-wrapper">
+          <Drawer navDrawer={NAV_ITEMS} />
+        </div>
       </Cheader>
     </div>
   );

@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import { useState } from "react";
@@ -72,6 +74,9 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
   const [editForm, setEditForm] = useState<EditForm | null>(null);
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
 
+  // ---------- Delete confirmation state ----------
+  const [deleteTarget, setDeleteTarget] = useState<SkillInput | null>(null);
+
   function resetSkillForm() {
     setSkillName("");
     setSkillCategory("hard");
@@ -127,7 +132,20 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
     }
   }
 
-  async function handleDeleteSkill(id: string) {
+  // ---------- Delete flow: request -> confirm -> execute ----------
+
+  function requestDelete(skill: SkillInput) {
+    setDeleteTarget(skill);
+  }
+
+  function cancelDelete() {
+    setDeleteTarget(null);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    const id = deleteTarget.id;
+
     setSkillLoading(true);
     try {
       await deleteSkill(id);
@@ -139,6 +157,7 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
       }
     } finally {
       setSkillLoading(false);
+      setDeleteTarget(null);
     }
   }
 
@@ -316,7 +335,7 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
                           type="button"
                           variant="delete"
                           label="Delete"
-                          onClick={() => handleDeleteSkill(skill.id)}
+                          onClick={() => requestDelete(skill)}
                           disabled={skillLoading}
                         />
                       </div>
@@ -407,6 +426,30 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
             </div>
           </div>
         </Cform>
+      </Modal>
+
+      <Modal isOpen={deleteTarget !== null} onClose={cancelDelete} title="Delete Skill">
+        <p className="text-sm text-gray-600 mb-6">
+          Are you sure you want to delete{" "}
+          <span className="font-semibold text-black">{deleteTarget?.skill_name}</span>? This
+          action cannot be undone.
+        </p>
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            label="Cancel"
+            onClick={cancelDelete}
+            disabled={skillLoading}
+          />
+          <Button
+            type="button"
+            variant="delete"
+            label={skillLoading ? "Deleting..." : "Delete"}
+            onClick={confirmDelete}
+            disabled={skillLoading}
+          />
+        </div>
       </Modal>
     </div>
   );
