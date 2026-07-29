@@ -87,7 +87,7 @@ export default function PersonalDetailsSection({ initialData }: PersonalDetailsS
 
   return (
     <div data-mode="light" className="grid grid-cols-1 gap-6 md:grid-cols-3">
-      <Cform onSubmit={handleSubmit}>
+      <Cform onSubmit={handleSubmit} className="w-full md:min-w-[500px] lg:min-w-[600px]">
         <div
           data-mode="light"
           className="flex flex-col gap-4 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"

@@ -217,7 +217,7 @@ export default function SkillSection({ personalDetailsId, initialSkills }: Skill
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-black">Skills</h2>
         {personalDetailsId && (
-          <Button type="button" variant="primary" label="Add Skill" onClick={openAddModal} />
+          <Button type="button" variant="primary" label="Add Skill" onClick={openAddModal}  style= "max-w-[150px] ml-auto" />
         )}
       </div>
 
