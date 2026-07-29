@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from "react";
@@ -39,62 +40,97 @@ export default function AdminForm({
   const personalDetailsId = initialData?.id ?? null;
 
   return (
-    <div className="min-h-screen w-full bg-white flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col py-8 px-4 gap-2">
-        <h1 className="text-lg font-bold text-black mb-6 px-2">Admin Panel</h1>
-        {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
-          const isActive = activeTab === key;
+    <div className="min-h-screen w-full bg-white">
 
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setActiveTab(key)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-black text-white"
-                  : "text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              <Icon size={18} />
-              {label}
-            </button>
-          );
-        })}
-      </aside>
+      {/* MOBILE HEADER */}
+      <header className="md:hidden sticky top-0 z-20 bg-white border-b border-gray-200">
+        <nav className="flex justify-center items-center gap-3 py-2">
+          {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
+            const isActive = activeTab === key;
 
-      {/* Content */}
-      <main className="flex-1 px-10 py-10 overflow-y-auto bg-white">
-        {activeTab === "personal" && (
-          <PersonalDetailsSection initialData={initialData} />
-        )}
-        {activeTab === "education" && (
-          <EducationSection
-            personalDetailsId={personalDetailsId}
-            initialEducations={initialEducations}
-          />
-        )}
-        {activeTab === "skills" && (
-          <SkillSection
-            personalDetailsId={personalDetailsId}
-            initialSkills={initialSkills}
-          />
-        )}
-        {activeTab === "projects" && (
-          <ProjectSection
-            personalDetailsId={personalDetailsId}
-            initialProjects={initialProjects}
-          />
-        )}
-      </main>
+            return (
+              <button
+                key={key}
+                type="button"
+                title={label}
+                onClick={() => setActiveTab(key)}
+                className={`p-3 rounded-lg transition-colors ${
+                  isActive
+                    ? "bg-black text-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <Icon size={22} />
+              </button>
+            );
+          })}
+        </nav>
+      </header>
+
+     
+      <div className="flex">
+
+        {/* Sidebar (Desktop Only) */}
+        <aside className="hidden md:flex w-64 flex-shrink-0 bg-white border-r border-gray-200 flex-col py-8 px-4 gap-2">
+          <h1 className="text-lg font-bold text-black mb-6 px-2">
+            Admin Panel
+          </h1>
+
+          {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
+            const isActive = activeTab === key;
+
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setActiveTab(key)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-black text-white"
+                    : "text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                <Icon size={18} />
+                {label}
+              </button>
+            );
+          })}
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 px-4 md:px-10 py-6 md:py-10 overflow-y-auto bg-white">
+
+          {activeTab === "personal" && (
+            <PersonalDetailsSection initialData={initialData} />
+          )}
+
+          {activeTab === "education" && (
+            <EducationSection
+              personalDetailsId={personalDetailsId}
+              initialEducations={initialEducations}
+            />
+          )}
+
+          {activeTab === "skills" && (
+            <SkillSection
+              personalDetailsId={personalDetailsId}
+              initialSkills={initialSkills}
+            />
+          )}
+
+          {activeTab === "projects" && (
+            <ProjectSection
+              personalDetailsId={personalDetailsId}
+              initialProjects={initialProjects}
+            />
+          )}
+
+        </main>
+
+      </div>
     </div>
   );
 }
-
-
-
-
 // 'use client';
 
 // import { useState } from "react";
@@ -136,13 +172,37 @@ export default function AdminForm({
 //   const personalDetailsId = initialData?.id ?? null;
 
 //   return (
-//     <div className="min-h-screen w-full bg-white flex">
+//     <div className="min-h-screen w-full bg-white flex  md:flex-row">
+//         {/* Mobile Top Navigation */}
+//   <header className="md:hidden sticky top-0 z-20 bg-white border-b border-gray-200 items-center ">
+//     <nav className="flex justify-around py-2">
+//       {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
+//         const isActive = activeTab === key;
+
+//         return (
+//           <button
+//             key={key}
+//             type="button"
+//             title={label}
+//             onClick={() => setActiveTab(key)}
+//             className={`p-3 rounded-lg transition-colors ${
+//               isActive
+//                 ? "bg-black text-white"
+//                 : "text-gray-600 hover:bg-gray-100"
+//             }`}
+//           >
+//             <Icon size={22} />
+//           </button>
+//         );
+//       })}
+//     </nav>
+//   </header>
+
 //       {/* Sidebar */}
-//       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col py-8 px-4 gap-2">
+//       <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col py-8 px-4 gap-2">
 //         <h1 className="text-lg font-bold text-black mb-6 px-2">Admin Panel</h1>
 //         {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
 //           const isActive = activeTab === key;
-
 
 //           return (
 //             <button
@@ -163,7 +223,7 @@ export default function AdminForm({
 //       </aside>
 
 //       {/* Content */}
-//       <main className="flex-1 px-10 py-10 overflow-y-auto">
+//       <main className="flex-1 px-10 py-10 overflow-y-auto bg-white">
 //         {activeTab === "personal" && (
 //           <PersonalDetailsSection initialData={initialData} />
 //         )}
@@ -186,52 +246,6 @@ export default function AdminForm({
 //           />
 //         )}
 //       </main>
-//     </div>
-//   );
-// }
-
-// 'use client';
-
-// import EducationSection from "@/app/components/admin-sections/EducationSection";
-// import PersonalDetailsSection from "@/app/components/admin-sections/PersonalDetailsSection";
-// import ProjectSection from "@/app/components/admin-sections/ProjectSection";
-// import SkillSection from "@/app/components/admin-sections/SkillSection";
-// import { personal_details as PersonalDetails } from "@/generated/prisma/client";
-// import { education as EducationInput } from "@/generated/prisma/client";
-// import { skill as SkillInput } from "@/generated/prisma/client";
-// import { project as ProjectInput } from "@/generated/prisma/client";
-
-
-// interface AdminFormProps {
-//   initialData: PersonalDetails | null;
-//   initialEducations: EducationInput[];
-//   initialSkills: SkillInput[];
-//   initialProjects: ProjectInput[];
-// }
-
-// export default function AdminForm({
-//   initialData,
-//   initialEducations,
-//   initialSkills,
-//   initialProjects,
-// }: AdminFormProps) {
-//   const personalDetailsId = initialData?.id ?? null;
-
-//   return (
-//     <div>
-//       <PersonalDetailsSection initialData={initialData} />
-//       <EducationSection
-//         personalDetailsId={personalDetailsId}
-//         initialEducations={initialEducations}
-//       />
-//       <SkillSection
-//         personalDetailsId={personalDetailsId}
-//         initialSkills={initialSkills}
-//       />
-//       <ProjectSection
-//         personalDetailsId={personalDetailsId}
-//         initialProjects={initialProjects}
-//       />
 //     </div>
 //   );
 // }

@@ -10,8 +10,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "My Portfolio",
-  description: "eloisa.dev portfolio",
+  title: "elois.dev",
+  description: "elois.dev portfolio",
 };
 
 export default function RootLayout({

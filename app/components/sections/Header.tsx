@@ -71,7 +71,7 @@ export default function Header() {
           border-black/10
           bg-white/10
           backdrop-blur-md
-          supports-[backdrop-filter]:bg-white/20
+          supports-backdrop-filter:bg-white/20
           "
       />
 

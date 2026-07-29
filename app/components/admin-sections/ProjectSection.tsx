@@ -493,6 +493,7 @@ export default function ProjectSection({
             variant="primary"
             label="Add Project"
             onClick={openAddModal}
+            style= "max-w-[150px] ml-auto"
           />
         )}
       </div>

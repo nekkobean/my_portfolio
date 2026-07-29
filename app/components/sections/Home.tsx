@@ -191,7 +191,7 @@ export default function Home({
   return (
     <Section
       id="home"
-      title="Dashboard"
+      title=""
       style="bg-gray-100"
       sectionTitleClassName="text-black text-2xl md:text-3xl lg:text-4xl"
     >
